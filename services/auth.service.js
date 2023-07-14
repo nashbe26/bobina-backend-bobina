@@ -17,7 +17,7 @@ const register = async (data) =>{
   
   
 
-    if (!(data && data.password && data.email &&  data.username  &&  data.name))
+  if (!(data && data.password && data.email &&  data.username  &&  data.name))
     throw createError(400, `Missing Information!`)
 
 	// Verfiy username

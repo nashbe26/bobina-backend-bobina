@@ -5,7 +5,6 @@ const { generateJWT } = require('../utils/jwt');
 //Calling register Service
 
 const register = asyncHandler(async (req, res) => {
-    console.log(req.body);
     const user = await authService.register(req.body);
     res.status(200).json(user);
 });

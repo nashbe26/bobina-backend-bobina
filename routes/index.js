@@ -12,7 +12,7 @@ const languageRotuer = require('./language.route')
 
 router.use('/auth',authRotuer);
 router.use('/user',authMiddleware,userRotuer);
-router.use('/writeSonic',authMiddleware,writeSonicApiRotuer);
+router.use('/writeSonic',writeSonicApiRotuer);
 router.use('/contact',contactRouter);
 router.use('/payment',paymentRotuer);
 router.use('/language',languageRotuer);
