@@ -2,7 +2,9 @@ const axios = require('axios');
 const { URLSearchParams } = require('url');
 const createError = require('http-errors');
 const { getUserById, updateNbrWords } = require('./user.service');
-const sdk = require('api')('@tinq/v1.0#7plfu0xl6ql5c85');
+const sdk = require('api')('@writesonic/v2.2#4ekm6b01flcau4wqa');
+
+sdk.auth('46dbadee-4800-47a9-bc19-18620a37fa77');
 
 async function checkIfNrWord(userId){
 
@@ -43,126 +45,72 @@ async function checkIfNrWord(userId){
     return engine;
 }
 
+exports.grammarCheckTinqAi =async  function(userId,data) {
+
+  if(data.lang == 'en')
+  return sdk.chatsonic_V2BusinessContentChatsonic_post({
+    enable_google_results: 'true',
+    enable_memory: false,
+    input_text: 'Check the gramma of this text and answer with only the correct text. /n' + " " +data.text 
+  }, {engine: 'premium', language: data.lang})
+    .then(({ data }) => data.message)
+    .catch(err => console.error(err));
+    else if(data.lang=="fr")
+    return sdk.chatsonic_V2BusinessContentChatsonic_post({
+      enable_google_results: 'true',
+      enable_memory: false,
+      input_text: 'Vérifiez le gramme de ce texte et réponds uniquement le texte correct. /n' + " " +data.text 
+    }, {engine: 'premium', language: data.lang})
+      .then(({ data }) => data.message)
+      .catch(err => console.error(err));
+
+}
+
 exports.rewriterTinqAi =async  function(userId,data) {
     
-  
-    
-    const encodedParams = new URLSearchParams();
-    encodedParams.set('text', data.text);
-    encodedParams.set('mode', data.mode);
-    encodedParams.set('lang', data.lang);
-    
-    const options = {
-      method: 'POST',
-      url: 'https://tinq.ai/api/v1/rewrite',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/x-www-form-urlencoded',
-        authorization: 'Bearer key-f5729522-7d89-4215-9e45-9697a84bb1a5-640dc5d1ae0a9'
-      },
-      data: encodedParams,
-    };
-    
-    return await axios
-      .request(options)
-      .then(function (response) {
-        return response.data;
-      })
-      .catch(function (error) {
-        throw createError(401,error)
-      });
-       
-
+  return sdk.contentRephrase_V2BusinessContentContentRephrase_post({
+    tone_of_voice: data.mode,
+    content_to_rephrase:data.text
+  }, {engine: 'premium',  language: data.lang,  num_copies: '1'
+})
+  .then(({ data }) => data[0].text)
+  .catch(err => console.error(err));
 }
 
-exports.checkPlagiarism  =async  function(userId,data) {
-
-
-    
-    const encodedParams = new URLSearchParams();
-    encodedParams.set('text', data.text);
-    
-    const options = {
-      method: 'POST',
-      url: 'https://tinq.ai/api/v1/check-plagiarism',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/x-www-form-urlencoded',
-        authorization: 'Bearer key-f5729522-7d89-4215-9e45-9697a84bb1a5-640dc5d1ae0a9'
-      },
-      data: encodedParams,
-    };
-    
-    return await axios
-    .request(options)
-    .then(function (response) {
-      return response.data;
-    })
-    .catch(function (error) {
-      throw createError(401,error)
-    });
-    
-
-}
 
 exports.aiWriter =async  function(userId,data) {
 
+    return sdk.paragraphWriter_V2BusinessContentParagraphWriter_post({
+      tone_of_voice: data.mode,
+      paragraph_title:data.text
+    }, {
+      engine: 'premium',
+      language: data.lang,
+      num_copies: '1'
 
-const options = {
-  method: 'POST',
-  url: 'https://tinq.ai/api/v2/assistant/',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    Authorization: 'Bearer 74|uNe9jhq0xEep2C1BldjJZxZb0ftSkNXJO4psKhkn'
-  },
-  data: {
-    lang: data.lang,
-    tone: data.mode,
-    length: data.length,
-    creativity: data.cre,
-    tool: 'news_article',
-    topic: data.text,
-    number: 1,
-    paragraphs: 1,
-    keywords:data.keyword
-  }
-    };
-
-    const res = await axios.request(options).then(function (response) {
-        return response.data
-    }).catch(function (error) {
-        throw createError(401,error)
-    });
-
-    return res
+    })
+      .then(({ data }) => data[0].text)
+      .catch(err => console.error(err));
 
 }
 
 exports.aiTinqSum =async  function(userId,data) {
-    const encodedParams = new URLSearchParams();
-
-    encodedParams.set('text', data.text);
-    encodedParams.set('output_percent', '30');
-    
-    
-    const options = {
-      method: 'POST',
-      url: 'https://tinq.ai/api/v1/summarize',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/x-www-form-urlencoded',
-        authorization: 'Bearer key-f5729522-7d89-4215-9e45-9697a84bb1a5-640dc5d1ae0a9'
-      },
-      data: encodedParams,
-    };
-    
-    const res = await axios.request(options).then(function (response) {
-        return response.data
-    }).catch(function (error) {
-        throw createError(401,error)
-    });
-
-    return res
+  return  sdk.summary_V2BusinessContentSummary_post({article_text: data.text}, {engine: 'premium',  language: data.lang, num_copies: '1'})
+  .then(({ data }) =>data[0].summary)
+  .catch(err => console.error(err));
 }
 
+exports.aiTinqExtander =async  function(userId,data) {
+
+  return sdk.sentenceExpand_V2BusinessContentSentenceExpand_post({
+    tone_of_voice: data.mode,
+    content_to_expand:data.text
+  }, {
+    engine: 'premium',
+    language: data.lang,
+    num_copies: '1'
+
+  })
+    .then(({ data }) => data[0].text)
+    .catch(err => console.error(err));
+}

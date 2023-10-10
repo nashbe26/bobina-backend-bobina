@@ -7,9 +7,9 @@ const rewriterTinqAi = async (req, res) => {
     res.status(200).json(response);
 }
 
-const checkPlagiarism =async (req, res) => {
+const aiTinqExtander =async (req, res) => {
     let userId= req.user
-    let response=await  writerSonicService.checkPlagiarism(userId,req.body)
+    let response=await  writerSonicService.aiTinqExtander(userId,req.body)
     res.status(200).json(response);
 }
 
@@ -24,12 +24,18 @@ const aiTinqSum = async (req, res) => {
     let response = await writerSonicService.aiTinqSum(userId,req.body)
     res.status(200).json(response);
 }
+const grammarCheckTinqAi = async (req, res) => {
+    let userId= req.user
+    let response = await writerSonicService.grammarCheckTinqAi(userId,req.body)
+    res.status(200).json(response);
+}
 
 
 
 module.exports = {
     rewriterTinqAi,
-    checkPlagiarism,
+    aiTinqExtander,
     aiWriter,
-    aiTinqSum
+    aiTinqSum,
+    grammarCheckTinqAi
 }
